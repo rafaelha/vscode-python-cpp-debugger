@@ -9,35 +9,58 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "problemMatcher": "$tsc-watch"
+            "problemMatcher": "$tsc"
         },
         {
             "type": "npm",
             "script": "watch",
             "group": "build",
             "isBackground": true,
-            "problemMatcher": [
-                "$ts-webpack-watch",
-                "$tslint-webpack-watch"
-            ]
+            "problemMatcher": {
+                "owner": "typescript",
+                "source": "webpack",
+                "applyTo": "allDocuments",
+                "fileLocation": "relative",
+                "pattern": {
+                    "regexp": ".",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^\\s*\\[?webpack\\]?",
+                    "endsPattern": "compiled|failed"
+                }
+            }
         },
         {
             "type": "npm",
             "script": "compile-web",
-            "problemMatcher": [
-                "$ts-webpack",
-                "$tslint-webpack"
-            ]
+            "problemMatcher": "$tsc"
         },
         {
             "type": "npm",
             "script": "watch-web",
             "group": "build",
             "isBackground": true,
-            "problemMatcher": [
-                "$ts-webpack-watch",
-                "$tslint-webpack-watch"
-            ]
+            "problemMatcher": {
+                "owner": "typescript",
+                "source": "webpack",
+                "applyTo": "allDocuments",
+                "fileLocation": "relative",
+                "pattern": {
+                    "regexp": ".",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^\\s*\\[?webpack\\]?",
+                    "endsPattern": "compiled|failed"
+                }
+            }
         }
     ]
 }
