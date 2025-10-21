@@ -3,10 +3,10 @@
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 
-import assert = require("assert");
-import * as Path from "path";
 import { DebugClient } from "@vscode/debugadapter-testsupport";
 import { DebugProtocol } from "@vscode/debugprotocol";
+import * as assert from "assert";
+import * as Path from "path";
 
 suite("Node Debug Adapter", () => {
   const DEBUG_ADAPTER = "./out/debugAdapter.js";
@@ -24,7 +24,7 @@ suite("Node Debug Adapter", () => {
   teardown(() => dc.stop());
 
   suite("basic", () => {
-    test("unknown request should produce error", (done) => {
+    test("unknown request should produce error", done => {
       dc.send("illegal_request")
         .then(() => {
           done(new Error("does not report error on unknown request"));
@@ -37,25 +37,23 @@ suite("Node Debug Adapter", () => {
 
   suite("initialize", () => {
     test("should return supported features", () => {
-      return dc.initializeRequest().then((response) => {
+      return dc.initializeRequest().then(response => {
         response.body = response.body || {};
         assert.equal(response.body.supportsConfigurationDoneRequest, true);
       });
     });
 
-    test("should produce error for invalid 'pathFormat'", (done) => {
+    test("should produce error for invalid 'pathFormat'", done => {
       dc.initializeRequest({
         adapterID: "mock",
         linesStartAt1: true,
         columnsStartAt1: true,
         pathFormat: "url",
       })
-        .then((response) => {
-          done(
-            new Error("does not report error on invalid 'pathFormat' attribute")
-          );
+        .then(_response => {
+          done(new Error("does not report error on invalid 'pathFormat' attribute"));
         })
-        .catch((err) => {
+        .catch(_err => {
           // error expected
           done();
         });
@@ -90,10 +88,7 @@ suite("Node Debug Adapter", () => {
       const PROGRAM = Path.join(DATA_ROOT, "test.md");
       const BREAKPOINT_LINE = 2;
 
-      return dc.hitBreakpoint(
-        { program: PROGRAM },
-        { path: PROGRAM, line: BREAKPOINT_LINE }
-      );
+      return dc.hitBreakpoint({ program: PROGRAM }, { path: PROGRAM, line: BREAKPOINT_LINE });
     });
 
     test("hitting a lazy breakpoint should send a breakpoint event", () => {
@@ -106,13 +101,9 @@ suite("Node Debug Adapter", () => {
           { path: PROGRAM, line: BREAKPOINT_LINE, verified: false }
         ),
 
-        dc.waitForEvent("breakpoint").then((event) => {
-          const bpevent = event as DebugProtocol.BreakpointEvent;
-          assert.strictEqual(
-            bpevent.body.breakpoint.verified,
-            true,
-            "event mismatch: verified"
-          );
+        dc.waitForEvent("breakpoint").then(_event => {
+          const bpevent = _event as DebugProtocol.BreakpointEvent;
+          assert.strictEqual(bpevent.body.breakpoint.verified, true, "event mismatch: verified");
         }),
       ]);
     });
@@ -120,21 +111,18 @@ suite("Node Debug Adapter", () => {
 
   suite("setExceptionBreakpoints", () => {
     test("should stop on an exception", () => {
-      const PROGRAM_WITH_EXCEPTION = Path.join(
-        DATA_ROOT,
-        "testWithException.md"
-      );
+      const PROGRAM_WITH_EXCEPTION = Path.join(DATA_ROOT, "testWithException.md");
       const EXCEPTION_LINE = 4;
 
       return Promise.all([
         dc
           .waitForEvent("initialized")
-          .then((event) => {
+          .then(_event => {
             return dc.setExceptionBreakpointsRequest({
               filters: ["otherExceptions"],
             });
           })
-          .then((response) => {
+          .then(_response => {
             return dc.configurationDoneRequest();
           }),
 

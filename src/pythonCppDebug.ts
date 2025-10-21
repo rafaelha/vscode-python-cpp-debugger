@@ -3,8 +3,8 @@
  *--------------------------------------------------------*/
 
 import { LoggingDebugSession, TerminatedEvent } from "@vscode/debugadapter";
-import * as vscode from "vscode";
 import { DebugProtocol } from "@vscode/debugprotocol";
+import * as vscode from "vscode";
 import { getPythonPath } from "./activatePythonCppDebug";
 
 interface ILaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
@@ -34,9 +34,9 @@ export class PythonCppDebugSession extends LoggingDebugSession {
   public constructor() {
     super();
 
-    let folders = vscode.workspace.workspaceFolders;
+    const folders = vscode.workspace.workspaceFolders;
     if (!folders) {
-      let message = "Working folder not found, open a folder and try again";
+      const message = "Working folder not found, open a folder and try again";
       vscode.window.showErrorMessage(message);
       this.sendEvent(new TerminatedEvent());
       return;
@@ -52,70 +52,66 @@ export class PythonCppDebugSession extends LoggingDebugSession {
     // will be python when we will need it
     this.sendEvent(new TerminatedEvent());
     if (!this.folder) {
-      let message = "Working folder not found, open a folder and try again";
+      const message = "Working folder not found, open a folder and try again";
       vscode.window.showErrorMessage(message);
       return;
     }
 
-    let config = await this.checkConfig(args, this.folder);
+    const config = await this.checkConfig(args, this.folder);
     if (!config) {
       return;
     }
     args = config;
 
-    let pyConf = args.pythonLaunch;
-    let cppConf = args.cppAttach;
+    const pyConf = args.pythonLaunch;
+    const cppConf = args.cppAttach;
 
     // We force the Debugger to stopOnEntry so we can attach the cpp debugger
-    let oldStopOnEntry: boolean = pyConf.stopOnEntry ? true : false;
+    const oldStopOnEntry: boolean = pyConf.stopOnEntry ? true : false;
     pyConf.stopOnEntry = true;
 
-    await vscode.debug
-      .startDebugging(this.folder, pyConf, undefined)
-      .then((pythonStartResponse) => {
-        if (!vscode.debug.activeDebugSession || !pythonStartResponse) {
-          return;
-        }
-        const pySession = vscode.debug.activeDebugSession;
-        pySession.customRequest("pydevdSystemInfo").then((res) => {
-          if (!res.process.pid) {
-            let message =
-              "The python debugger couldn't send its processId,						\
+    await vscode.debug.startDebugging(this.folder, pyConf, undefined).then(pythonStartResponse => {
+      if (!vscode.debug.activeDebugSession || !pythonStartResponse) {
+        return;
+      }
+      const pySession = vscode.debug.activeDebugSession;
+      pySession.customRequest("pydevdSystemInfo").then(res => {
+        if (!res.process.pid) {
+          const message =
+            "The python debugger couldn't send its processId,						\
 					 				make sure to enter an Issue on the official Python Cp++ Debug Github about this issue!";
-            return vscode.window.showErrorMessage(message).then((_) => {
-              return;
-            });
+          return vscode.window.showErrorMessage(message).then(_ => {
+            return;
+          });
+        }
+
+        // set processid to debugpy processid to attach to
+        cppConf.processId = res.process.pid;
+        cppConf.pid = res.process.pid;
+
+        vscode.debug.startDebugging(this.folder, cppConf, undefined).then(cppStartResponse => {
+          // If the Cpp debugger wont start make sure to stop the python debugsession
+          if (!cppStartResponse) {
+            vscode.debug.stopDebugging(pySession);
+            return;
           }
 
-          // set processid to debugpy processid to attach to
-          cppConf.processId = res.process.pid;
-          cppConf.pid = res.process.pid;
-
-          vscode.debug
-            .startDebugging(this.folder, cppConf, undefined)
-            .then((cppStartResponse) => {
-              // If the Cpp debugger wont start make sure to stop the python debugsession
-              if (!cppStartResponse) {
-                vscode.debug.stopDebugging(pySession);
-                return;
+          // We have to delay the call to continue the process as it might not have fully attached yet
+          setTimeout(
+            _ => {
+              /**
+               * If the user hasn't defined/set stopOnEntry in the Python config
+               * we continue as we force a stopOnEntry to attach the Cpp debugger
+               * */
+              if (!oldStopOnEntry) {
+                pySession.customRequest("continue");
               }
-
-              // We have to delay the call to continue the process as it might not have fully attached yet
-              setTimeout(
-                (_) => {
-                  /**
-                   * If the user hasn't defined/set stopOnEntry in the Python config
-                   * we continue as we force a stopOnEntry to attach the Cpp debugger
-                   * */
-                  if (!oldStopOnEntry) {
-                    pySession.customRequest("continue");
-                  }
-                },
-                !args.optimizedLaunch ? 500 : 0
-              );
-            });
+            },
+            !args.optimizedLaunch ? 500 : 0
+          );
         });
       });
+    });
 
     this.sendResponse(response);
   }
@@ -135,15 +131,15 @@ export class PythonCppDebugSession extends LoggingDebugSession {
     ) {
       // Make sure the user has defined the properties 'pythonLaunchName' & 'cppAttachName
       if (!config.pythonLaunchName) {
-        let msg =
+        const msg =
           "Please make sure to define 'pythonLaunchName' for pythonCpp in your launch.json file or set 'pythonConfig' to default";
-        return vscode.window.showErrorMessage(msg).then((_) => {
+        return vscode.window.showErrorMessage(msg).then(_ => {
           return undefined; // abort launch
         });
       } else {
         pythonLaunch = getConfig(config.pythonLaunchName, folder);
         if (!pythonLaunch) {
-          let message =
+          const message =
             "Please make sure you have a configurations with the names '" +
             config.pythonLaunchName +
             "' in your launch.json file.";
@@ -172,15 +168,15 @@ export class PythonCppDebugSession extends LoggingDebugSession {
     ) {
       // Make sure the user has defined the property 'cppAttachName'
       if (!config.cppAttachName) {
-        let msg =
+        const msg =
           "Make sure to either define 'cppAttachName' for pythonCpp in your launch.json file or use the default configurations with the attribute 'cppConfig'";
-        return vscode.window.showErrorMessage(msg).then((_) => {
+        return vscode.window.showErrorMessage(msg).then(_ => {
           return undefined; // abort launch
         });
       } else {
         cppAttach = getConfig(config.cppAttachName, folder);
         if (!cppAttach) {
-          let message =
+          const message =
             "Make sure you have a configurations with the names '" +
             config.cppAttachName +
             "' in your launch.json file.";
@@ -209,6 +205,7 @@ export class PythonCppDebugSession extends LoggingDebugSession {
         request: "attach",
         program: await getPythonPath(null),
         processId: "",
+        // eslint-disable-next-line @typescript-eslint/naming-convention
         MIMode: "gdb",
         setupCommands: [
           {
@@ -227,14 +224,11 @@ export class PythonCppDebugSession extends LoggingDebugSession {
   }
 }
 
-function getConfig(
-  name: string,
-  folder: vscode.WorkspaceFolder
-): JSON | undefined {
+function getConfig(name: string, folder: vscode.WorkspaceFolder): JSON | undefined {
   const launchConfigs = vscode.workspace.getConfiguration("launch", folder.uri);
   const values: JSON | undefined = launchConfigs.get("configurations");
   if (!values) {
-    let message = "Unexpected error with the launch.json file";
+    const message = "Unexpected error with the launch.json file";
     vscode.window.showErrorMessage(message);
     return undefined;
   }

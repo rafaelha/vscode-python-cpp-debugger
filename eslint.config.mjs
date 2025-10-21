@@ -12,13 +12,18 @@ export default tseslint.config(
       },
     },
     rules: {
+      // Code quality rules
       "@typescript-eslint/naming-convention": "warn",
-      "@typescript-eslint/semi": "warn",
       curly: "warn",
       eqeqeq: "warn",
       "no-throw-literal": "warn",
+
+      // Disable formatting rules (handled by Prettier)
       semi: "off",
-      // Disable rules that might conflict with TypeScript
+      "@typescript-eslint/semi": "off",
+      "prettier/prettier": "off",
+
+      // TypeScript specific rules
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-unused-vars": [
         "warn",
@@ -27,6 +32,9 @@ export default tseslint.config(
           varsIgnorePattern: "^_",
         },
       ],
+
+      // Additional helpful rules
+      "prefer-const": "warn",
     },
   },
   {

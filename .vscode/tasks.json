@@ -1,66 +1,66 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "type": "npm",
-            "script": "compile",
-            "isBackground": false,
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "problemMatcher": "$tsc"
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "compile",
+      "isBackground": false,
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": "$tsc"
+    },
+    {
+      "type": "npm",
+      "script": "watch",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "webpack",
+        "applyTo": "allDocuments",
+        "fileLocation": "relative",
+        "pattern": {
+          "regexp": ".",
+          "file": 1,
+          "location": 2,
+          "message": 3
         },
-        {
-            "type": "npm",
-            "script": "watch",
-            "group": "build",
-            "isBackground": true,
-            "problemMatcher": {
-                "owner": "typescript",
-                "source": "webpack",
-                "applyTo": "allDocuments",
-                "fileLocation": "relative",
-                "pattern": {
-                    "regexp": ".",
-                    "file": 1,
-                    "location": 2,
-                    "message": 3
-                },
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern": "^\\s*\\[?webpack\\]?",
-                    "endsPattern": "compiled|failed"
-                }
-            }
-        },
-        {
-            "type": "npm",
-            "script": "compile-web",
-            "problemMatcher": "$tsc"
-        },
-        {
-            "type": "npm",
-            "script": "watch-web",
-            "group": "build",
-            "isBackground": true,
-            "problemMatcher": {
-                "owner": "typescript",
-                "source": "webpack",
-                "applyTo": "allDocuments",
-                "fileLocation": "relative",
-                "pattern": {
-                    "regexp": ".",
-                    "file": 1,
-                    "location": 2,
-                    "message": 3
-                },
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern": "^\\s*\\[?webpack\\]?",
-                    "endsPattern": "compiled|failed"
-                }
-            }
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\s*\\[?webpack\\]?",
+          "endsPattern": "compiled|failed"
         }
-    ]
+      }
+    },
+    {
+      "type": "npm",
+      "script": "compile-web",
+      "problemMatcher": "$tsc"
+    },
+    {
+      "type": "npm",
+      "script": "watch-web",
+      "group": "build",
+      "isBackground": true,
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "webpack",
+        "applyTo": "allDocuments",
+        "fileLocation": "relative",
+        "pattern": {
+          "regexp": ".",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^\\s*\\[?webpack\\]?",
+          "endsPattern": "compiled|failed"
+        }
+      }
+    }
+  ]
 }

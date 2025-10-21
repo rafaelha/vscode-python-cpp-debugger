@@ -4,15 +4,10 @@
 
 "use strict";
 
-import * as vscode from "vscode";
-import {
-  WorkspaceFolder,
-  DebugConfiguration,
-  ProviderResult,
-  CancellationToken,
-} from "vscode";
-import { PythonCppDebugSession } from "./pythonCppDebug";
 import * as os from "os";
+import * as vscode from "vscode";
+import { CancellationToken, DebugConfiguration, ProviderResult, WorkspaceFolder } from "vscode";
+import { PythonCppDebugSession } from "./pythonCppDebug";
 
 export function activatePythonCppDebug(
   context: vscode.ExtensionContext,
@@ -82,29 +77,27 @@ export function activatePythonCppDebug(
   }
 }
 
-class PythonCppConfigurationProvider
-  implements vscode.DebugConfigurationProvider
-{
+class PythonCppConfigurationProvider implements vscode.DebugConfigurationProvider {
   /**
    * Check Debug Configuration before DebugSession is launched
    */
   resolveDebugConfiguration(
     folder: WorkspaceFolder | undefined,
     config: DebugConfiguration,
-    token?: CancellationToken
+    _token?: CancellationToken
   ): ProviderResult<DebugConfiguration | undefined> {
     // if launch.json is missing or empty
     if (!config.type && !config.request && !config.name) {
-      let msg =
+      const msg =
         "Please make sure you have a launch.json file with a configuration of type 'pythoncpp' to use this debugger";
-      return vscode.window.showErrorMessage(msg).then((_) => {
+      return vscode.window.showErrorMessage(msg).then(_ => {
         return undefined; // abort launch
       });
     }
 
     if (!folder) {
-      let msg = "Working folder not found, open a folder and try again";
-      return vscode.window.showErrorMessage(msg).then((_) => {
+      const msg = "Working folder not found, open a folder and try again";
+      return vscode.window.showErrorMessage(msg).then(_ => {
         return undefined;
       });
     }
@@ -112,30 +105,28 @@ class PythonCppConfigurationProvider
     if (
       !config.entirePythonConfig &&
       ((config.pythonConfig &&
-        (config.pythonConfig === "custom" ||
-          config.pythonConfig === "manual")) ||
+        (config.pythonConfig === "custom" || config.pythonConfig === "manual")) ||
         !config.pythonConfig) &&
       !config.pythonLaunchName
     ) {
-      let msg =
+      const msg =
         "Make sure to either set 'pythonLaunchName' to the name of " +
         "your python configuration or set 'pythonConfig: default'";
-      return vscode.window.showErrorMessage(msg).then((_) => {
+      return vscode.window.showErrorMessage(msg).then(_ => {
         return undefined; // abort launch
       });
     }
 
     if (
       !config.entireCppConfig &&
-      ((config.cppConfig &&
-        (config.cppConfig === "custom" || config.cppConfig === "manual")) ||
+      ((config.cppConfig && (config.cppConfig === "custom" || config.cppConfig === "manual")) ||
         !config.cppConfig) &&
       !config.cppAttachName
     ) {
-      let msg =
+      const msg =
         "Make sure to either set 'cppAttachName' to the name of " +
         "your C++ configuration or set 'cppConfig' to the default configuration you wish to use";
-      return vscode.window.showErrorMessage(msg).then((_) => {
+      return vscode.window.showErrorMessage(msg).then(_ => {
         return undefined; // abort launch
       });
     }
@@ -144,8 +135,8 @@ class PythonCppConfigurationProvider
   }
 
   async provideDebugConfigurations(
-    folder?: vscode.WorkspaceFolder,
-    token?: vscode.CancellationToken
+    _folder?: vscode.WorkspaceFolder,
+    _token?: vscode.CancellationToken
   ): Promise<vscode.DebugConfiguration[]> {
     interface MenuItem extends vscode.QuickPickItem {
       configuration: vscode.DebugConfiguration;
@@ -199,10 +190,9 @@ class PythonCppConfigurationProvider
       },
     ];
 
-    const selection: MenuItem | undefined = await vscode.window.showQuickPick(
-      items,
-      { placeHolder: "Select a configuration" }
-    );
+    const selection: MenuItem | undefined = await vscode.window.showQuickPick(items, {
+      placeHolder: "Select a configuration",
+    });
     if (!selection || selection.type === "Default") {
       const defaultConfig: vscode.DebugConfiguration = {
         name: "Python C++ Debugger",
@@ -236,11 +226,9 @@ class PythonCppConfigurationProvider
   }
 }
 
-export async function getPythonPath(
-  document: vscode.TextDocument | null
-): Promise<string> {
+export async function getPythonPath(document: vscode.TextDocument | null): Promise<string> {
   try {
-    let pyExt = vscode.extensions.getExtension("ms-python.python");
+    const pyExt = vscode.extensions.getExtension("ms-python.python");
     if (!pyExt) {
       return "python";
     }
@@ -257,32 +245,24 @@ export async function getPythonPath(
     } else {
       let path;
       if (document) {
-        path = vscode.workspace
-          .getConfiguration("python", document.uri)
-          .get<string>("pythonPath");
+        path = vscode.workspace.getConfiguration("python", document.uri).get<string>("pythonPath");
       } else {
-        path = vscode.workspace
-          .getConfiguration("python")
-          .get<string>("pythonPath");
+        path = vscode.workspace.getConfiguration("python").get<string>("pythonPath");
       }
       if (!path) {
         return "python";
       }
     }
-  } catch (ignored) {
+  } catch {
     return "python";
   }
   return "python";
 }
 
-class InlineDebugAdapterFactory
-  implements vscode.DebugAdapterDescriptorFactory
-{
+class InlineDebugAdapterFactory implements vscode.DebugAdapterDescriptorFactory {
   createDebugAdapterDescriptor(
     _session: vscode.DebugSession
   ): ProviderResult<vscode.DebugAdapterDescriptor> {
-    return new vscode.DebugAdapterInlineImplementation(
-      new PythonCppDebugSession()
-    );
+    return new vscode.DebugAdapterInlineImplementation(new PythonCppDebugSession());
   }
 }
