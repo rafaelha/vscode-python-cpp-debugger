@@ -211,12 +211,7 @@ class PythonCppConfigurationProvider implements vscode.DebugConfigurationProvide
         type: "pythoncpp",
         request: "launch",
         pythonConfig: "default",
-        cppConfig:
-          os.platform() === "darwin"
-            ? "default (lldb) Attach"
-            : os.platform().startsWith("win")
-              ? "default (win) Attach"
-              : "default (gdb) Attach",
+        cppConfig: "default",
       };
       return [defaultConfig];
     }

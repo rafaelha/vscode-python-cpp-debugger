@@ -4,6 +4,7 @@
 
 import { LoggingDebugSession, TerminatedEvent } from "@vscode/debugadapter";
 import { DebugProtocol } from "@vscode/debugprotocol";
+import * as os from "os";
 import * as vscode from "vscode";
 import { getPythonPath } from "./activatePythonCppDebug";
 
@@ -199,37 +200,64 @@ export class PythonCppDebugSession extends LoggingDebugSession {
           cppAttach["processId"] = "";
         }
       }
-    } else if (config.cppConfig === "default (win) Attach") {
-      cppAttach = {
-        name: "(Windows) Attach",
-        type: "cppvsdbg",
-        request: "attach",
-        processId: "",
-      };
-    } else if (config.cppConfig === "default (gdb) Attach") {
-      cppAttach = {
-        name: "(gdb) Attach",
-        type: "cppdbg",
-        request: "attach",
-        program: await getPythonPath(null),
-        processId: "",
-        // eslint-disable-next-line @typescript-eslint/naming-convention
-        MIMode: "gdb",
-        setupCommands: [
-          {
-            description: "Enable pretty-printing for gdb",
-            text: "-enable-pretty-printing",
-            ignoreFailures: true,
-          },
-        ],
-      };
-    } else if (config.cppConfig === "default (lldb) Attach") {
-      cppAttach = {
-        name: "(lldb) Attach",
-        type: "lldb",
-        request: "attach",
-        pid: "",
-      };
+    } else if (
+      config.cppConfig === "default" ||
+      config.cppConfig === "default (win) Attach" ||
+      config.cppConfig === "default (gdb) Attach" ||
+      config.cppConfig === "default (lldb) Attach"
+    ) {
+      // Determine platform - either auto-detect or use specific config
+      let platform: string;
+      if (config.cppConfig === "default") {
+        platform = os.platform();
+      } else if (config.cppConfig === "default (win) Attach") {
+        platform = "win32";
+      } else if (config.cppConfig === "default (gdb) Attach") {
+        platform = "linux";
+      } else if (config.cppConfig === "default (lldb) Attach") {
+        platform = "darwin";
+      } else {
+        platform = os.platform(); // fallback
+      }
+
+      // Create configuration based on platform
+      if (platform === "darwin") {
+        // macOS - use LLDB
+        cppAttach = {
+          name: "(lldb) Attach",
+          type: "lldb",
+          request: "attach",
+          pid: "",
+        };
+      } else if (platform.startsWith("win")) {
+        // Windows - use MS debugger
+        cppAttach = {
+          name: "(Windows) Attach",
+          type: "cppvsdbg",
+          request: "attach",
+          processId: "",
+        };
+      } else {
+        // Linux and other Unix-like systems - use GDB
+        cppAttach = {
+          name: "(gdb) Attach",
+          type: "cppdbg",
+          request: "attach",
+          program: await getPythonPath(null),
+          processId: "",
+          // eslint-disable-next-line @typescript-eslint/naming-convention
+          MIMode: "gdb",
+          miDebuggerPath:
+            "/path/to/gdb or remove this attribute for the path to be found automatically",
+          setupCommands: [
+            {
+              description: "Enable pretty-printing for gdb",
+              text: "-enable-pretty-printing",
+              ignoreFailures: true,
+            },
+          ],
+        };
+      }
     }
 
     config.pythonLaunch = pythonLaunch;
