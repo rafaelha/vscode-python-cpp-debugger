@@ -86,8 +86,11 @@ export class PythonCppDebugSession extends LoggingDebugSession {
         }
 
         // set processid to debugpy processid to attach to
-        cppConf.processId = res.process.pid;
-        cppConf.pid = res.process.pid;
+        if (cppConf.type === "lldb") {
+          cppConf.pid = res.process.pid;
+        } else {
+          cppConf.processId = res.process.pid;
+        }
 
         vscode.debug.startDebugging(this.folder, cppConf, undefined).then(cppStartResponse => {
           // If the Cpp debugger wont start make sure to stop the python debugsession
@@ -189,7 +192,12 @@ export class PythonCppDebugSession extends LoggingDebugSession {
           cppAttach["program"] = await getPythonPath(null);
         }
 
-        cppAttach["processId"] = "";
+        // Set the appropriate process ID field based on debugger type
+        if (cppAttach["type"] === "lldb") {
+          cppAttach["pid"] = "";
+        } else {
+          cppAttach["processId"] = "";
+        }
       }
     } else if (config.cppConfig === "default (win) Attach") {
       cppAttach = {
@@ -214,6 +222,13 @@ export class PythonCppDebugSession extends LoggingDebugSession {
             ignoreFailures: true,
           },
         ],
+      };
+    } else if (config.cppConfig === "default (lldb) Attach") {
+      cppAttach = {
+        name: "(lldb) Attach",
+        type: "lldb",
+        request: "attach",
+        pid: "",
       };
     }
 

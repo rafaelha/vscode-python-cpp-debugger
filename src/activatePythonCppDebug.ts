@@ -169,6 +169,12 @@ class PythonCppConfigurationProvider implements vscode.DebugConfigurationProvide
       processId: "",
     };
 
+    const lldbConfig: vscode.DebugConfiguration = {
+      name: "(lldb) Attach",
+      type: "lldb",
+      request: "attach",
+      pid: "",
+    };
     const items: MenuItem[] = [
       {
         label: "Python C++ Debugger",
@@ -188,6 +194,12 @@ class PythonCppConfigurationProvider implements vscode.DebugConfigurationProvide
         description: "Custom: GDB",
         type: "(gdb)",
       },
+      {
+        label: "Python C++ Debugger",
+        configuration: lldbConfig,
+        description: "Custom: LLDB",
+        type: "(lldb)",
+      },
     ];
 
     const selection: MenuItem | undefined = await vscode.window.showQuickPick(items, {
@@ -199,9 +211,12 @@ class PythonCppConfigurationProvider implements vscode.DebugConfigurationProvide
         type: "pythoncpp",
         request: "launch",
         pythonConfig: "default",
-        cppConfig: os.platform().startsWith("win")
-          ? "default (win) Attach"
-          : "default (gdb) Attach",
+        cppConfig:
+          os.platform() === "darwin"
+            ? "default (lldb) Attach"
+            : os.platform().startsWith("win")
+              ? "default (win) Attach"
+              : "default (gdb) Attach",
       };
       return [defaultConfig];
     }
