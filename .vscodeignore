@@ -12,3 +12,6 @@ tsconfig.json
 out
 sampleWebWorkerWorkspace
 sampleWorkspace
+.prettierignore
+eslint.config.mjs
+*.vsix

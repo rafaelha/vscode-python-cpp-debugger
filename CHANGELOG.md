@@ -1,3 +1,9 @@
+## 0.3.0
+
+- Forked from the original extension by Benjamin Simmonds (https://github.com/benibenj/vscode-pythonCpp/)
+- Added default configuration for LLDB on macOS
+- Added `cppConfig: "default"` - Auto-detects platform and chooses appropriate debugger
+
 ## 0.2.18
 
 - Passes Python process ID to `pid` of C++ config for other C++ debuggers

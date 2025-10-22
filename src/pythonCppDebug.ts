@@ -247,8 +247,6 @@ export class PythonCppDebugSession extends LoggingDebugSession {
           processId: "",
           // eslint-disable-next-line @typescript-eslint/naming-convention
           MIMode: "gdb",
-          miDebuggerPath:
-            "/path/to/gdb or remove this attribute for the path to be found automatically",
           setupCommands: [
             {
               description: "Enable pretty-printing for gdb",

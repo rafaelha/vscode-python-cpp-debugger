@@ -1,13 +1,18 @@
 {
   "name": "pythoncpp-debug",
   "displayName": "Python C++ Debugger",
-  "version": "0.2.18",
-  "publisher": "benjamin-simmonds",
-  "description": "Extension for starting the Python & C++ debugger on the same process in VScode",
-  "author": {
-    "name": "Benjamin Simmonds",
-    "email": "Benjaminsimmonds@outlook.com"
-  },
+  "version": "0.3.0",
+  "publisher": "rafaelha",
+  "description": "Extension for starting the Python & C++ debugger on the same process in VSCode",
+  "contributors": [
+    {
+      "name": "Rafael Haenel"
+    },
+    {
+      "name": "Benjamin Simmonds",
+      "email": "Benjaminsimmonds@outlook.com"
+    }
+  ],
   "license": "MIT",
   "keywords": [
     "python",
@@ -31,27 +36,29 @@
     "Cpp attach",
     "Python attach C++",
     "debug python c++",
-    "ctypes"
+    "ctypes",
+    "lldb"
   ],
   "engines": {
     "vscode": "^1.49.0"
   },
   "categories": [
-    "Debuggers",
-    "Data Science"
+    "Debuggers"
   ],
   "private": true,
   "icon": "images/icon.png",
-  "extensionDependencies": [
-    "ms-vscode.cpptools"
-  ],
-  "homepage": "https://github.com/benibenj/vscode-pythonCpp/",
+  "extensionDependencies": [],
+  "homepage": "https://github.com/rafaelha/vscode-python-cpp-debugger/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/benibenj/vscode-pythonCpp/"
+    "url": "https://github.com/rafaelha/vscode-python-cpp-debugger/"
   },
   "bugs": {
-    "url": "https://github.com/benibenj/vscode-pythonCpp/issues"
+    "url": "https://github.com/rafaelha/vscode-python-cpp-debugger/issues"
+  },
+  "originalRepository": {
+    "type": "git",
+    "url": "https://github.com/benibenj/vscode-pythonCpp/"
   },
   "scripts": {
     "vscode:prepublish": "yarn run package-ext && yarn run package-web",
@@ -206,12 +213,13 @@
                 "enum": [
                   "custom",
                   "manual",
+                  "default",
                   "default (win) Attach",
                   "default (gdb) Attach",
                   "default (lldb) Attach"
                 ],
-                "description": "Pick 'default (win)/(gdb)/(lldb)' if you wish to use the default configuration, otherwise 'custom' and specify the 'cppAttachName' attribute",
-                "default": "custom"
+                "description": "Pick 'default' for auto-detection, 'default (win)/(gdb)/(lldb)' for specific platforms, or 'custom' and specify the 'cppAttachName' attribute",
+                "default": "default"
               },
               "entirePythonConfig": {
                 "type": "object",
@@ -251,7 +259,7 @@
               "type": "pythoncpp",
               "request": "launch",
               "pythonConfig": "default",
-              "cppConfig": "!!pick 'default (win) Attach' or 'default (gdb) Attach' or 'default (lldb) Attach'"
+              "cppConfig": "default"
             }
           },
           {
